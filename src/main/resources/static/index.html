@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Edmond Ocran Ministries - Prayer & Hope</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#0f0f1a;color:#fff}
+header{background:linear-gradient(135deg,#6a11cb,#2575fc);padding:20px;text-align:center}
+header h1{font-size:28px}header p{opacity:.9;margin-top:5px}
+nav{background:#1a1a2e;padding:12px;text-align:center}
+nav a{color:#ffd700;margin:0 12px;text-decoration:none;font-weight:bold}
+.hero{padding:40px 20px;text-align:center;background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),url('https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800');background-size:cover}
+.hero h2{font-size:32px;color:#ffd700}.hero p{margin:15px 0;font-size:18px}
+.btn{display:inline-block;background:#ffd700;color:#000;padding:14px 28px;border-radius:30px;text-decoration:none;font-weight:bold;margin:10px}
+.card{background:#1e1e35;margin:20px;padding:20px;border-radius:15px}
+.card h3{color:#ffd700;margin-bottom:10px}
+input,select,textarea{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:none;font-size:16px}
+button{background:#ffd700;color:#000;padding:14px;border:none;border-radius:8px;font-weight:bold;width:100%;font-size:16px;cursor:pointer}
+.prayer-item{background:#2a2a4a;padding:12px;border-radius:10px;margin:10px 0}
+footer{text-align:center;padding:20px;opacity:.7}
+</style></head>
+<body>
+<header><h1>🙏 EDMOND OCRAN MINISTRIES</h1><p>Faith • Prayer • Hope • Restoration</p></header>
+<nav><a href="#prayer">Prayer</a><a href="#testimony">Testimonies</a><a href="#give">Give</a><a href="#admin">Admin</a></nav>
+<div class="hero"><h2>YOU ARE NOT ALONE</h2><p>Send your prayer request. Pastor Edmond and team will pray for you.</p><a class="btn" href="#prayer">🙏 SEND PRAYER REQUEST</a></div>
+
+<div class="card" id="prayer"><h3>🙏 Send Prayer Request</h3>
+<input id="name" placeholder="Your Name">
+<input id="phone" placeholder="Phone / WhatsApp (optional)">
+<select id="type"><option>Healing</option><option>Family</option><option>Finance / Business</option><option>Marriage</option><option>Deliverance</option><option>Other</option></select>
+<textarea id="message" rows="4" placeholder="Write your prayer request here..."></textarea>
+<button onclick="sendPrayer()">SEND PRAYER 🙏</button>
+<p id="msg" style="margin-top:10px;color:#7CFC00"></p></div>
+
+<div class="card" id="testimony"><h3>✨ Testimonies</h3><p>⭐ "God healed me after Pastor prayed for me!" - Sister Ama, Accra</p><br><p>⭐ "My business was restored! God is faithful!" - Brother Kwame, Kumasi</p><br><p>⭐ "My family is back together. Thank you Jesus!" - Sister Efua</p></div>
+
+<div class="card" id="give"><h3>💛 Give / Seed / Offering</h3><p>Support the work of God. Sow a seed of faith.</p><p style="margin-top:10px"><b>MTN MoMo:</b> 055-XXX-XXXX (Edmond Ocran)</p><p><b>Bank:</b> Coming Soon</p><br><button onclick="alert('Thank you for giving! God bless you! Use MoMo: 055-XXX-XXXX')">GIVE NOW 💛</button></div>
+
+<div class="card" id="admin"><h3>🔐 Pastor Admin - Prayers Received</h3><p>Total Prayers: <b id="count">0</b></p><button onclick="loadPrayers()" style="background:#fff">REFRESH PRAYERS</button><div id="list"></div></div>
+
+<footer>© 2026 Edmond Ocran Ministries • Accra, Ghana • God Bless You</footer>
+<script>
+const API='/api/prayers';
+async function sendPrayer(){
+ let n=document.getElementById('name').value;
+ let m=document.getElementById('message').value;
+ if(!n||!m){alert('Please enter name and prayer');return;}
+ let res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:document.getElementById('phone').value,type:document.getElementById('type').value,message:m})});
+ if(res.ok){document.getElementById('msg').innerText='✅ Prayer Sent! We will pray for you! God bless you!';document.getElementById('message').value='';loadPrayers();}
+ else{document.getElementById('msg').innerText='❌ Error. Try again.';}
+}
+async function loadPrayers(){
+ try{
+  let r=await fetch(API);let data=await r.json();
+  document.getElementById('count').innerText=data.length;
+  document.getElementById('list').innerHTML=data.map(p=>`<div class="prayer-item"><b>${p.name}</b> - ${p.type}<br>${p.message}<br><small>${p.createdAt||''} ${p.prayedFor?'✅ Prayed':''}</small><br><button onclick="mark(${p.id})" style="width:auto;padding:6px 12px;margin-top:8px">Mark Prayed ✅</button></div>`).join('');
+ }catch(e){}
+}
+async function mark(id){await fetch(API+'/'+id+'/prayed',{method:'POST'});loadPrayers();}
+loadPrayers();
+</script></body></html>
